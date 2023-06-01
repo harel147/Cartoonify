@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/CartoonGAN-Test-Pytorch-Torch" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DCT-Net" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DualStyleGAN" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/VToonify" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cartoon-gan" vcs="Git" />
+  </component>
+</project>
