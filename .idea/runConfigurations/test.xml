@@ -23,7 +23,7 @@
       </ENTRIES>
     </EXTENSION>
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CartoonGAN_for_torch/test.py" />
-    <option name="PARAMETERS" value="--style Paprika --gpu 0" />
+    <option name="PARAMETERS" value="--style Paprika --input_dir ../FER2013/test/surprise --output_dir ../FER2013/test1/surprise1 --gpu 0" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

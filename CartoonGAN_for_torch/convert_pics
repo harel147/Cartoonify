@@ -1,0 +1,9 @@
+#!/bin/bash
+
+python ./test.py --style Paprika --input_dir ../FER2013/test/angry --output_dir ../FER2013/test1/angry1 --gpu 0 &&
+python ./test.py --style Paprika --input_dir ../FER2013/test/disgust --output_dir ../FER2013/test1/disgust1 --gpu 0 &&
+python ./test.py --style Paprika --input_dir ../FER2013/test/fear --output_dir ../FER2013/test1/fear1 --gpu 0 &&
+python ./test.py --style Paprika --input_dir ../FER2013/test/happy --output_dir ../FER2013/test1/happy1 --gpu 0 &&
+python ./test.py --style Paprika --input_dir ../FER2013/test/neutral --output_dir ../FER2013/test1/neutral1 --gpu 0 &&
+python ./test.py --style Paprika --input_dir ../FER2013/test/sad --output_dir ../FER2013/test1/sad1 --gpu 0 &&
+python ./test.py --style Paprika --input_dir ../FER2013/test/surprise --output_dir ../FER2013/test1/surprise1 --gpu 0
