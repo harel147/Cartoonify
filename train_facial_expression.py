@@ -92,7 +92,7 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
             }, f'./results/{start_time}/checkpoint_val.pth')
 
         print(
-            f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}")
+            f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}, Val_acc: {val_acc:.4f}")
 
     # Save the checkpoint to a file
     torch.save({
