@@ -24,6 +24,7 @@ parser.add_argument('--lr_adam', default=0.001, type=float)
 parser.add_argument('--momentum', default=0.9, type=float)
 parser.add_argument('--weight_decay', default=1e-4, type=float)
 parser.add_argument('--data_path', default='./FER2013', type=str)
+parser.add_argument('--cartoon_prec', default=0.5, type=float)
 
 # Define the custom dataset class
 class AugmentedDataset(Dataset):
@@ -145,17 +146,20 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
     return train_loss_list, val_loss_list, model
 
 
-def prep_data(path):
+def prep_data(path, cartoon_prec=0.5):
     # Define data transformations
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        #transforms.Resize((224, 224)),
+        transforms.Grayscale(),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        # transforms.Lambda(lambda tensors: torch.stack(
+        #     [transforms.Normalize(mean=(mu,), std=(st,))(t) for t in tensors])),
     ])
 
     # Load FER2013 dataset
     #train_data = datasets.ImageFolder(f"{path}/train", transform=transform)
-    train_data = AugmentedDataset(f"{path}/train", f"{path}/train_cartoon", transform=transform, augment_prec=0.5)
+    train_data = AugmentedDataset(f"{path}/train", f"{path}/train_cartoon", transform=transform, augment_prec=cartoon_prec)
     val_data = datasets.ImageFolder(f"{path}/validation", transform=transform)  # we took 10% from the original train set
     test_data = datasets.ImageFolder(f"{path}/test", transform=transform)
 
@@ -179,7 +183,7 @@ def main():
     os.mkdir(f'./results/{start_time}')
 
     args = parser.parse_args()
-    train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path)
+    train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, args.cartoon_prec)
 
     # Load pre-trained ResNet-18 model
     model = models.resnet18(pretrained=True)
