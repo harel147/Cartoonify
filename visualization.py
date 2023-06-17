@@ -72,9 +72,10 @@ def confusion_matrix(model, test_loader, file_path, checkpoint=None):
 
 
 if __name__ == '__main__':
-    dir = '2023_06_17_14_55_34_original_dataset_adam'
+    dir = '2023_06_17_17_19_08'
     path = "./FER2013"
     train_loader, val_loader, test_loader, num_classes = train_facial_expression.prep_data(path)
     model = models.resnet18(pretrained=True)
     model.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
-    confusion_matrix(model, test_loader, file_path=f'results/{dir}', checkpoint='./results/{dir}/checkpoint_val.pth')
+    confusion_matrix(model, test_loader, file_path=f'results/{dir}', checkpoint=f'./results/{dir}/checkpoint_validation_best.pth')
+    loss_graph(f'results/{dir}')
