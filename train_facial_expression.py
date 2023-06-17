@@ -48,7 +48,7 @@ def evalute(model, loader, criterion):
     return accuracy, total_loss
 
 
-def train(model, optimizer, args, criterion, num_epochs, train_loader, val_loader, start_time):
+def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader, start_time):
     # Training loop
     train_loss_list = []
     val_loss_list = []
@@ -77,11 +77,12 @@ def train(model, optimizer, args, criterion, num_epochs, train_loader, val_loade
 
         if args.optimizer == 'sgd':
             if args.scheduler == 'cos':
-                args.scheduler.step()
+                scheduler.step()
             elif args.scheduler == 'reduce':
-                args.scheduler.step(val_acc)
+                scheduler.step(val_acc)
 
         if val_loss < best_val:
+            best_val = val_loss
             # Save the checkpoint to a file
             torch.save({
                 'epoch': epoch,
@@ -160,7 +161,7 @@ def main():
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer, mode='max', factor=0.75, patience=5, verbose=True)
 
-    train_loss_list, val_loss_list, model = train(model, optimizer, args, criterion, args.epochs, train_loader, val_loader, start_time)
+    train_loss_list, val_loss_list, model = train(args, model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader, start_time)
 
     data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
     with open(f'./results/{start_time}/loss.pickle', 'wb') as file:
