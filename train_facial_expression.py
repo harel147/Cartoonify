@@ -15,7 +15,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 random.seed(123)
 
 parser = argparse.ArgumentParser(description='face recognition resnet-18')
-parser.add_argument('--epochs', default=200, type=int)
+parser.add_argument('--epochs', default=300, type=int)
 parser.add_argument('--batch_size', default=128, type=int)
 parser.add_argument('--optimizer', default="adam", type=str, help='[sgd, adam]')
 parser.add_argument('--scheduler', default="reduce", type=str, help='[reduce, cos]')
@@ -77,7 +77,7 @@ def evalute(model, loader, criterion):
     return accuracy, total_loss
 
 
-def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader, start_time):
+def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader, folder_name):
     # Training loop
     train_loss_list = []
     val_loss_list = []
@@ -118,7 +118,7 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': running_loss / len(train_loader),
-            }, f'./results/{start_time}/checkpoint_validation_best.pth')
+            }, f'./results/{folder_name}/checkpoint_validation_best.pth')
 
         print(
             f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}, Val_acc: {val_acc:.4f}")
@@ -130,9 +130,9 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': running_loss / len(train_loader),
-            }, f'./results/{start_time}/checkpoint_run.pth')
+            }, f'./results/{folder_name}/checkpoint_run.pth')
             data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
-            with open(f'./results/{start_time}/loss.pickle', 'wb') as file:
+            with open(f'./results/{folder_name}/loss.pickle', 'wb') as file:
                 # Dump the data into the pickle file
                 pickle.dump(data, file)
 
@@ -142,7 +142,7 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': running_loss / len(train_loader),
-    }, f'./results/{start_time}/checkpoint_last.pth')
+    }, f'./results/{folder_name}/checkpoint_last.pth')
     return train_loss_list, val_loss_list, model
 
 
@@ -179,10 +179,15 @@ def prep_data(path, cartoon_prec=0.5):
 
 
 def main():
-    start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
-    os.mkdir(f'./results/{start_time}')
-
     args = parser.parse_args()
+    start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
+    if args.optimizer=="adam":
+        save_lr = args.lr_adam
+    elif args.optimizer=="sgd":
+        save_lr = args.lr_sgd
+    folder_name = f'{start_time}_optimizer_{args.optimizer}_init_lr_{save_lr}_cartoon_prec_{args.cartoon_prec}'
+    os.mkdir(f"./results/{folder_name}")
+
     train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, args.cartoon_prec)
 
     # Load pre-trained ResNet-18 model
@@ -208,19 +213,19 @@ def main():
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer, mode='max', factor=0.75, patience=5, verbose=True)
 
-    train_loss_list, val_loss_list, model = train(args, model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader, start_time)
+    train_loss_list, val_loss_list, model = train(args, model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader, folder_name)
 
     data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
-    with open(f'./results/{start_time}/loss.pickle', 'wb') as file:
+    with open(f'./results/{folder_name}/loss.pickle', 'wb') as file:
         # Dump the data into the pickle file
         pickle.dump(data, file)
 
-    visualization.loss_graph(f'./results/{start_time}')
+    visualization.loss_graph(f'./results/{folder_name}')
 
     # Evaluation
     # test_acc, test_loss = evaluate(model, test_loader, criterion)
     # print(f"Test Accuracy: {test_acc:.4f}")
-    visualization.confusion_matrix(model, test_loader, file_path=f'./results/{start_time}')
+    visualization.confusion_matrix(model, test_loader, file_path=f'./results/{folder_name}')
 
 if __name__ == '__main__':
     main()
