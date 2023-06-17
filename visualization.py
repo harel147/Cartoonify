@@ -5,6 +5,7 @@ import numpy as np
 import torch.nn as nn
 from torchvision import datasets, models, transforms
 import train_facial_expression
+from PIL import Image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -70,6 +71,10 @@ def confusion_matrix(model, test_loader, file_path, checkpoint=None):
     plt.show(block=False)
     plt.savefig(f'{file_path}/confusion matrix.png')
 
+
+def img_shape():
+    image = Image.open('./FER2013/test/angry/PrivateTest_88305.jpg')
+    print(image.size)
 
 if __name__ == '__main__':
     dir = '2023_06_17_17_19_08'
