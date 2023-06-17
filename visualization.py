@@ -66,14 +66,15 @@ def confusion_matrix(model, test_loader, file_path, checkpoint=None):
         for j in range(cm_normalized.shape[1]):
             ax.text(j, i, str(round(cm_normalized[i, j],2)), ha='center', va='center',
                     color='white' if cm_normalized[i, j] > np.max(cm_normalized) / 2 else 'black')
-
+    plt.title(f'Test accuracy: {round(test_accuracy, 2)}')
     plt.show(block=False)
     plt.savefig(f'{file_path}/confusion matrix.png')
 
 
 if __name__ == '__main__':
+    dir = '2023_06_17_14_55_34_original_dataset_adam'
     path = "./FER2013"
     train_loader, val_loader, test_loader, num_classes = train_facial_expression.prep_data(path)
     model = models.resnet18(pretrained=True)
     model.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
-    confusion_matrix(model, test_loader, file_path='./results/2023_06_17_14_27_44', checkpoint='./results/2023_06_17_14_27_44/checkpoint_last.pth')
+    confusion_matrix(model, test_loader, file_path=f'results/{dir}', checkpoint='./results/{dir}/checkpoint_val.pth')

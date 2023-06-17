@@ -89,10 +89,23 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': running_loss / len(train_loader),
-            }, f'./results/{start_time}/checkpoint_val.pth')
+            }, f'./results/{start_time}/checkpoint_validation_best.pth')
 
         print(
             f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}, Val_acc: {val_acc:.4f}")
+
+        if epoch % 5 == 0:
+            # Save the checkpoint to a file
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': running_loss / len(train_loader),
+            }, f'./results/{start_time}/checkpoint_run.pth')
+            data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
+            with open(f'./results/{start_time}/loss.pickle', 'wb') as file:
+                # Dump the data into the pickle file
+                pickle.dump(data, file)
 
     # Save the checkpoint to a file
     torch.save({
