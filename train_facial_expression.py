@@ -6,6 +6,8 @@ from torchvision import datasets, models, transforms
 from torch.utils.data import DataLoader
 import pickle
 import time
+import visualization
+import numpy as np
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -49,6 +51,7 @@ def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_
     # Training loop
     train_loss_list = []
     val_loss_list = []
+    best_val = np.inf
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -76,9 +79,25 @@ def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_
         elif scheduler == 'reduce':
             scheduler.step(val_acc)
 
+        if val_loss < best_val:
+            # Save the checkpoint to a file
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': running_loss / len(train_loader),
+            }, f'./dump_loss/checkpoint_val_{time.strftime("%Y_%m_%d", time.localtime())}.pth')
+
         print(
             f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}")
 
+    # Save the checkpoint to a file
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': running_loss / len(train_loader),
+    }, f'./dump_loss/checkpoint_last_{time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}.pth')
     return train_loss_list, val_loss_list, model
 
 
@@ -143,9 +162,12 @@ def main():
         # Dump the data into the pickle file
         pickle.dump(data, file)
 
+    visualization.loss_graph(f'./dump_loss/loss_{time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}.pickle')
+
     # Evaluation
-    test_acc, test_loss = evalute(model, test_loader, criterion)
-    print(f"Test Accuracy: {test_acc:.4f}")
+    # test_acc, test_loss = evaluate(model, test_loader, criterion)
+    # print(f"Test Accuracy: {test_acc:.4f}")
+    visualization.confusion_matrix(model, test_loader)
 
 if __name__ == '__main__':
     main()
