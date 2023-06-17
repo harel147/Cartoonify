@@ -150,7 +150,7 @@ def prep_data(path, cartoon_prec=0.5):
     # Define data transformations
     transform = transforms.Compose([
         #transforms.Resize((224, 224)),
-        transforms.Grayscale(),
+        #transforms.Grayscale(),
         transforms.ToTensor(),
         #transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         # transforms.Lambda(lambda tensors: torch.stack(
