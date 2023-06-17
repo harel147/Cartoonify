@@ -150,6 +150,7 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     if args.optimizer == 'adam':
+        scheduler = None
         optimizer = optim.Adam(model.parameters(), lr=args.lr_adam)
     elif args.optimizer == 'sgd':
         optimizer = torch.optim.SGD(model.parameters(
