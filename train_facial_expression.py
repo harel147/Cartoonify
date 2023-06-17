@@ -13,7 +13,7 @@ import os
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 parser = argparse.ArgumentParser(description='face recognition resnet-18')
-parser.add_argument('--epochs', default=2, type=int)
+parser.add_argument('--epochs', default=100, type=int)
 parser.add_argument('--batch_size', default=128, type=int)
 parser.add_argument('--optimizer', default="sgd", type=str, help='[sgd, adam]')
 parser.add_argument('--scheduler', default="reduce", type=str, help='[reduce, cos]')
