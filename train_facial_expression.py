@@ -8,6 +8,7 @@ import pickle
 import time
 import visualization
 import numpy as np
+import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -47,12 +48,11 @@ def evalute(model, loader, criterion):
     return accuracy, total_loss
 
 
-def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader):
+def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader, start_time):
     # Training loop
     train_loss_list = []
     val_loss_list = []
     best_val = np.inf
-    start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -87,7 +87,7 @@ def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': running_loss / len(train_loader),
-            }, f'./dump_loss/checkpoint_val_{start_time}.pth')
+            }, f'./results/{start_time}/checkpoint_val.pth')
 
         print(
             f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}")
@@ -98,7 +98,7 @@ def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': running_loss / len(train_loader),
-    }, f'./dump_loss/checkpoint_last_{start_time}.pth')
+    }, f'./results/{start_time}/checkpoint_last.pth')
     return train_loss_list, val_loss_list, model
 
 
@@ -131,6 +131,9 @@ def prep_data(path):
 
 
 def main():
+    start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
+    os.mkdir(f'./results/{start_time}')
+
     args = parser.parse_args()
     train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path)
 
@@ -156,19 +159,19 @@ def main():
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer, mode='max', factor=0.75, patience=5, verbose=True)
 
-    train_loss_list, val_loss_list, model = train(model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader)
+    train_loss_list, val_loss_list, model = train(model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader, start_time)
 
     data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
-    with open(f'./dump_loss/loss_{time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}.pickle', 'wb') as file:
+    with open(f'./results/{start_time}/loss.pickle', 'wb') as file:
         # Dump the data into the pickle file
         pickle.dump(data, file)
 
-    visualization.loss_graph(f'./dump_loss/loss_{time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}.pickle')
+    visualization.loss_graph(f'./results/{start_time}')
 
     # Evaluation
     # test_acc, test_loss = evaluate(model, test_loader, criterion)
     # print(f"Test Accuracy: {test_acc:.4f}")
-    visualization.confusion_matrix(model, test_loader)
+    visualization.confusion_matrix(model, test_loader, file_path=f'./results/{start_time}')
 
 if __name__ == '__main__':
     main()

@@ -9,7 +9,7 @@ import train_facial_expression
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def loss_graph(file_path):
-    with open(file_path, 'rb') as file:
+    with open(f'{file_path}/loss.pickle', 'rb') as file:
         # Load the data from the pickle file
         data = pickle.load(file)
 
@@ -19,7 +19,8 @@ def loss_graph(file_path):
     plt.title('Loss')
     plt.grid()
     plt.legend()
-    plt.show()
+    plt.show(block=False)
+    plt.savefig(f'{file_path}/loss_graph.png')
 
 
 def calculate_accuracy(model, dataloader, device):
@@ -42,7 +43,7 @@ def calculate_accuracy(model, dataloader, device):
     model_accuracy = total_correct / total_images * 100
     return model_accuracy, confusion_matrix
 
-def confusion_matrix(model, test_loader, checkpoint=None):
+def confusion_matrix(model, test_loader, file_path, checkpoint=None):
     if checkpoint is not None:
         model = model.to(device)
         state = torch.load(checkpoint, map_location=device)
@@ -58,11 +59,21 @@ def confusion_matrix(model, test_loader, checkpoint=None):
     plt.yticks(range(len(classes)), classes)
     plt.xlabel('Predicted Category')
     plt.xticks(range(len(classes)), classes)
-    plt.show()
+
+    cm_normalized = confusion_matrix.astype('float') / confusion_matrix.sum(axis=1)[:, np.newaxis]
+
+    for i in range(cm_normalized.shape[0]):
+        for j in range(cm_normalized.shape[1]):
+            ax.text(j, i, str(round(cm_normalized[i, j],2)), ha='center', va='center',
+                    color='white' if cm_normalized[i, j] > np.max(cm_normalized) / 2 else 'black')
+
+    plt.show(block=False)
+    plt.savefig(f'{file_path}/confusion matrix.png')
+
 
 if __name__ == '__main__':
     path = "./FER2013"
     train_loader, val_loader, test_loader, num_classes = train_facial_expression.prep_data(path)
     model = models.resnet18(pretrained=True)
     model.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
-    confusion_matrix(model, test_loader, checkpoint='./dump_loss/checkpoint_last_2023_06_17_13_32_41.pth')
+    confusion_matrix(model, test_loader, file_path='./results/2023_06_17_14_27_44', checkpoint='./results/2023_06_17_14_27_44/checkpoint_last.pth')
