@@ -3,25 +3,53 @@ import torch.nn as nn
 import torch.optim as optim
 import argparse
 from torchvision import datasets, models, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import pickle
 import time
 import visualization
 import numpy as np
 import os
+import random
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+random.seed(123)
 
 parser = argparse.ArgumentParser(description='face recognition resnet-18')
-parser.add_argument('--epochs', default=100, type=int)
+parser.add_argument('--epochs', default=200, type=int)
 parser.add_argument('--batch_size', default=128, type=int)
-parser.add_argument('--optimizer', default="sgd", type=str, help='[sgd, adam]')
+parser.add_argument('--optimizer', default="adam", type=str, help='[sgd, adam]')
 parser.add_argument('--scheduler', default="reduce", type=str, help='[reduce, cos]')
 parser.add_argument('--lr_sgd', default=0.1, type=float)
 parser.add_argument('--lr_adam', default=0.001, type=float)
 parser.add_argument('--momentum', default=0.9, type=float)
 parser.add_argument('--weight_decay', default=1e-4, type=float)
 parser.add_argument('--data_path', default='./FER2013', type=str)
+
+# Define the custom dataset class
+class AugmentedDataset(Dataset):
+    def __init__(self, original_folder, augmented_folder, transform=None, augment_prec=0.0):
+        super(AugmentedDataset, self).__init__()
+        self.original_dataset = datasets.ImageFolder(original_folder, transform=transform)
+        self.augmented_dataset = datasets.ImageFolder(augmented_folder, transform=transform)
+        self.transform = transform
+        self.original_prec = 1 - augment_prec  # chance of using the original image
+
+    def __getitem__(self, index):
+        # Randomly decide whether to use original or augmented image
+        use_original = random.random() < self.original_prec  # chance of using the original image
+        if use_original:
+            image, label = self.original_dataset[index]
+        else:
+            image, label = self.augmented_dataset[index]
+        return image, label
+
+    def __len__(self):
+        return max(len(self.original_dataset), len(self.augmented_dataset))
+
+    @property
+    def classes(self):
+        # Return the classes from the original dataset
+        return self.original_dataset.classes
 
 
 def evalute(model, loader, criterion):
@@ -126,7 +154,8 @@ def prep_data(path):
     ])
 
     # Load FER2013 dataset
-    train_data = datasets.ImageFolder(f"{path}/train", transform=transform)
+    #train_data = datasets.ImageFolder(f"{path}/train", transform=transform)
+    train_data = AugmentedDataset(f"{path}/train", f"{path}/train_cartoon", transform=transform, augment_prec=0.5)
     val_data = datasets.ImageFolder(f"{path}/validation", transform=transform)  # we took 10% from the original train set
     test_data = datasets.ImageFolder(f"{path}/test", transform=transform)
 
