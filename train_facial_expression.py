@@ -1,12 +1,25 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import argparse
 from torchvision import datasets, models, transforms
-from torch.utils.data import DataLoader, Subset, random_split
+from torch.utils.data import DataLoader
 import pickle
 import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+parser = argparse.ArgumentParser(description='face recognition resnet-18')
+parser.add_argument('--epochs', default=2, type=int)
+parser.add_argument('--batch_size', default=128, type=int)
+parser.add_argument('--optimizer', default="sgd", type=str, help='[sgd, adam]')
+parser.add_argument('--scheduler', default="reduce", type=str, help='[reduce, cos]')
+parser.add_argument('--lr_sgd', default=0.1, type=float)
+parser.add_argument('--lr_adam', default=0.001, type=float)
+parser.add_argument('--momentum', default=0.9, type=float)
+parser.add_argument('--weight_decay', default=1e-4, type=float)
+parser.add_argument('--data_path', default='./FER2013', type=str)
+
 
 def evalute(model, loader, criterion):
     # Evaluation
@@ -14,7 +27,6 @@ def evalute(model, loader, criterion):
     correct = 0
     total = 0
     running_loss = 0.0
-
 
     with torch.no_grad():
         for images, labels in loader:
@@ -33,7 +45,7 @@ def evalute(model, loader, criterion):
     return accuracy, total_loss
 
 
-def train(model, optimizer, criterion, num_epochs, train_loader, val_loader):
+def train(model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader):
     # Training loop
     train_loss_list = []
     val_loss_list = []
@@ -56,8 +68,13 @@ def train(model, optimizer, criterion, num_epochs, train_loader, val_loader):
 
         train_loss_list.append(running_loss / len(train_loader))
 
-        _, val_loss = evalute(model, val_loader, criterion)
+        val_acc, val_loss = evalute(model, val_loader, criterion)
         val_loss_list.append(val_loss)
+
+        if scheduler == 'cos':
+            scheduler.step()
+        elif scheduler == 'reduce':
+            scheduler.step(val_acc)
 
         print(
             f"Epoch [{epoch + 1}/{num_epochs}], Train_Loss: {running_loss / len(train_loader):.4f}, Val_Loss: {val_loss:.4f}")
@@ -94,8 +111,8 @@ def prep_data(path):
 
 
 def main():
-    path = "./FER2013"
-    train_loader, val_loader, test_loader, num_classes = prep_data(path)
+    args = parser.parse_args()
+    train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path)
 
     # Load pre-trained ResNet-18 model
     model = models.resnet18(pretrained=True)
@@ -105,12 +122,21 @@ def main():
     model = model.to(device)
 
     # Define loss function and optimizer and Hyper parameters
-    num_epochs = 2
-    lr = 1e-3
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
 
-    train_loss_list, val_loss_list, model = train(model, optimizer, criterion, num_epochs, train_loader, val_loader)
+    if args.optimizer == 'adam':
+        optimizer = optim.Adam(model.parameters(), lr=args.lr_adam)
+    elif args.optimizer == 'sgd':
+        optimizer = torch.optim.SGD(model.parameters(
+        ), lr=args.lr_sgd, momentum=args.momentum, weight_decay=args.weight_decay, nesterov=True)
+        if args.scheduler == 'cos':
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer, T_max=args.epochs)
+        elif args.scheduler == 'reduce':
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer, mode='max', factor=0.75, patience=5, verbose=True)
+
+    train_loss_list, val_loss_list, model = train(model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader)
 
     data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
     with open(f'./dump_loss/loss_{time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())}.pickle', 'wb') as file:
