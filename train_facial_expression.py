@@ -26,6 +26,7 @@ parser.add_argument('--weight_decay', default=1e-4, type=float)
 parser.add_argument('--data_path', default='./FER2013', type=str)
 parser.add_argument('--cartoon_prec', default=0.5, type=float)
 parser.add_argument('--test_mode', default="regular", type=str, help='[regular, cartoon]')
+parser.add_argument('--train_on_united', default="no", type=str, help='[no, yes]')
 
 # Define the custom dataset class
 class AugmentedDataset(Dataset):
@@ -147,7 +148,7 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
     return train_loss_list, val_loss_list, model
 
 
-def prep_data(path, cartoon_prec=0.5, test_mode="regular", batch_size=64):
+def prep_data(path, cartoon_prec=0.5, test_mode="regular", batch_size=64, train_on_united="no"):
     # Define data transformations
     transform = transforms.Compose([
         #transforms.Resize((224, 224)),
@@ -159,8 +160,10 @@ def prep_data(path, cartoon_prec=0.5, test_mode="regular", batch_size=64):
     ])
 
     # Load FER2013 dataset
-    #train_data = datasets.ImageFolder(f"{path}/train", transform=transform)
-    train_data = AugmentedDataset(f"{path}/train", f"{path}/train_cartoon", transform=transform, augment_prec=cartoon_prec)
+    if train_on_united == "no":
+        train_data = AugmentedDataset(f"{path}/train", f"{path}/train_cartoon", transform=transform, augment_prec=cartoon_prec)
+    elif train_on_united == "yes":
+        train_data = AugmentedDataset(f"{path}/train_united", f"{path}/train_cartoon", transform=transform, augment_prec=0.0)
     val_data = datasets.ImageFolder(f"{path}/validation", transform=transform)  # we took 10% from the original train set
     if test_mode == "regular":
         test_data = datasets.ImageFolder(f"{path}/test", transform=transform)
@@ -190,7 +193,8 @@ def main():
     folder_name = f'{start_time}_optimizer_{args.optimizer}_init_lr_{save_lr}_cartoon_prec_{args.cartoon_prec}'
     os.mkdir(f"./results/{folder_name}")
 
-    train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, args.cartoon_prec, args.test_mode, args.batch_size)
+    train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, args.cartoon_prec, args.test_mode,
+                                                                   args.batch_size, args.train_on_united)
 
     # Load pre-trained ResNet-18 model
     model = models.resnet18(pretrained=True)
