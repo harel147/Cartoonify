@@ -77,7 +77,7 @@ def img_shape():
     print(image.size)
 
 if __name__ == '__main__':
-    dir = '2023_06_17_17_19_08'
+    dir = '2023_06_17_17_49_06_optimizer_adam_init_lr_0.0001_cartoon_prec_0.5'
     path = "./FER2013"
     train_loader, val_loader, test_loader, num_classes = train_facial_expression.prep_data(path)
     model = models.resnet18(pretrained=True)
