@@ -33,14 +33,20 @@
 
 # chunk 3
 # sgd (reduce) optimizer, smaller/bigger batch
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 32 && \
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 128 && \
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.2 --batch_size 32 && \
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.2 --batch_size 128 && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 32 && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 128 && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.2 --batch_size 32 && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.2 --batch_size 128 && \
 # train on united dataset
-python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 32 --train_on_united yes && \
-python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 64 --train_on_united yes && \
-python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 128 --train_on_united yes && \
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 32 --train_on_united yes && \
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 64 --train_on_united yes && \
-python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 128 --train_on_united yes
+#python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 32 --train_on_united yes && \
+#python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 64 --train_on_united yes && \
+#python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 128 --train_on_united yes && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 32 --train_on_united yes && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 64 --train_on_united yes && \
+#python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 128 --train_on_united yes
+
+# chunk 4
+# take best model so far and try less than 10% cartoon
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.05 --batch_size 32 && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.02 --batch_size 32 && \
+#

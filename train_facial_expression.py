@@ -27,6 +27,7 @@ parser.add_argument('--data_path', default='./FER2013', type=str)
 parser.add_argument('--cartoon_prec', default=0.5, type=float)
 parser.add_argument('--test_mode', default="regular", type=str, help='[regular, cartoon]')
 parser.add_argument('--train_on_united', default="no", type=str, help='[no, yes]')
+parser.add_argument('--weights_init', default="imagenet", type=str, help='[imagenet, xavier]')
 
 # Define the custom dataset class
 class AugmentedDataset(Dataset):
@@ -196,9 +197,16 @@ def main():
     train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, args.cartoon_prec, args.test_mode,
                                                                    args.batch_size, args.train_on_united)
 
-    # Load pre-trained ResNet-18 model
-    model = models.resnet18(pretrained=True)
+    # Load ResNet-18 model
+    if args.weights_init == 'imagenet':
+        model = models.resnet18(pretrained=True)
+    elif args.weights_init == 'xavier':
+        model = models.resnet18(pretrained=True)
+        for module in model.modules():
+            if isinstance(module, (nn.Conv2d, nn.Linear)):
+                nn.init.xavier_uniform_(module.weight)
     model.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
+    print(model)
 
     # Move model to device
     model = model.to(device)
