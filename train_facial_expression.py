@@ -206,7 +206,6 @@ def main():
             if isinstance(module, (nn.Conv2d, nn.Linear)):
                 nn.init.xavier_uniform_(module.weight)
     model.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
-    print(model)
 
     # Move model to device
     model = model.to(device)
