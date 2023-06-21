@@ -7,6 +7,7 @@ from torchvision import datasets, models, transforms
 import train_facial_expression
 from PIL import Image
 import torch.nn.functional as F
+import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -19,16 +20,17 @@ def calculate_accuracy(model_original, model_cartoon, dataloader_original, datal
     confusion_matrix = np.zeros([7,7], int)
     with torch.no_grad():
         for data_original, data_cartoon in zip(dataloader_original, dataloader_cartoon):
-            images, labels = data_original
-            images = images.to(device)
+            images_original, labels = data_original
+            images_original = images_original.to(device)
             labels = labels.to(device)
-            outputs_original = model_original(images)
+            outputs_original = model_original(images_original)
             outputs_original = F.softmax(outputs_original, dim=1)
-            images, _ = data_cartoon
-            images = images.to(device)
-            outputs_cartoon = model_cartoon(images)
+            images_cartoon, _ = data_cartoon
+            images_cartoon = images_cartoon.to(device)
+            outputs_cartoon = model_cartoon(images_cartoon)
             outputs_cartoon = F.softmax(outputs_cartoon, dim=1)
-            outputs = torch.max(outputs_original, outputs_cartoon)
+            #outputs = torch.max(outputs_original, outputs_cartoon)
+            outputs = outputs_original + outputs_cartoon
             _, predicted = torch.max(outputs, 1)
             total_images += labels.size(0)
             total_correct += (predicted == labels).sum().item()
@@ -67,7 +69,7 @@ def confusion_matrix(model_original, model_cartoon, test_loader_original, test_l
             ax.text(j, i, str(round(cm_normalized[i, j],2)), ha='center', va='center',
                     color='white' if cm_normalized[i, j] > np.max(cm_normalized) / 2 else 'black')
     plt.title(f'Test accuracy: {round(test_accuracy, 2)}')
-    plt.show(block=False)
+    #plt.show(block=False)
     plt.savefig(f'{output_path}/confusion matrix.png')
 
 
@@ -76,8 +78,9 @@ def img_shape():
     print(image.size)
 
 if __name__ == '__main__':
-    test_name = 'test1'
+    test_name = 'best_original_best_cartoon_sum_11'
     output_path = f'results_2_models/{test_name}'
+    os.mkdir(output_path)
     checkpoint_orginal = f'./results/2023_06_18_20_48_52_optimizer_adam_init_lr_0.0001_cartoon_prec_0.0_chunk2/checkpoint_validation_best.pth'
     checkpoint_cartoon = f'./results/2023_06_18_23_32_51_optimizer_adam_init_lr_0.0001_cartoon_prec_0.8_chunk2/checkpoint_validation_best.pth'
     path = "./FER2013"
