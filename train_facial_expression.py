@@ -10,6 +10,7 @@ import visualization
 import numpy as np
 import os
 import random
+import optuna
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 random.seed(123)
@@ -183,6 +184,63 @@ def prep_data(path, cartoon_prec=0.5, test_mode="regular", batch_size=64, train_
     return train_loader, val_loader, test_loader, num_classes
 
 
+def objective(trial):
+    args = parser.parse_args()
+    # Load pre-trained ResNet-18 model
+    model = models.resnet18()
+    for module in model.modules():
+        if isinstance(module, (nn.Conv2d, nn.Linear)):
+            nn.init.xavier_uniform_(module.weight)
+    model.fc = nn.Linear(512, 7)  # Adjust the last fully connected layer for the correct number of classes
+    # Generate the model.
+    model = model.to(device)
+    # Generate the optimizers.
+    lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)  # log=True, will use log scale to interplolate between lr
+    batch = trial.suggest_int("batch", 2, 128)  # log=True, will use log scale to interplolate between lr
+    cartoon_prec = trial.suggest_float("cartoon_augmentation", 0, 1)  # log=True, will use log scale to interplolate between lr
+    optimizer = getattr(optim, "Adam")(model.parameters(), lr=lr)
+    print(f"lr: {lr}, batch size: {batch}, cartoon prec: {cartoon_prec}")
+    train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, cartoon_prec, args.test_mode,
+                                                                   batch, args.train_on_united)
+    # Define loss function and optimizer and Hyper parameters
+    criterion = nn.CrossEntropyLoss()
+    for epoch in range(args.epochs):
+        print(f"lr: {lr}, batch size: {batch}, cartoon prec: {cartoon_prec}")
+        model.train()
+        running_loss = 0.0
+        for images, labels in train_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+
+        val_acc, val_loss = evalute(model, val_loader, criterion)
+        print(f"val_acc: {val_acc}")
+
+        # report back to Optuna how far it is (epoch-wise) into the trial and how well it is doing (accuracy)
+        trial.report(val_acc, epoch)
+
+        # then, Optuna can decide if the trial should be pruned
+        # Handle pruning based on the intermediate value.
+        if trial.should_prune():
+            raise optuna.exceptions.TrialPruned()
+
+
+def optuna_main():
+    study = optuna.create_study(direction="maximize")
+    study.optimize(objective, n_trials=100, timeout=30)
+
+    best_trial = study.best_trial
+    print("Best trial:")
+    print("  Value: ", best_trial.value)
+    print("  Params: ")
+    for key, value in best_trial.params.items():
+        print("    {}: {}".format(key, value))
+
 def main():
     args = parser.parse_args()
     start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
@@ -234,4 +292,5 @@ def main():
     visualization.confusion_matrix(model, test_loader, file_path=f'./results/{folder_name}')
 
 if __name__ == '__main__':
-    main()
+    # main()
+    optuna_main()
