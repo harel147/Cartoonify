@@ -28,6 +28,7 @@ parser.add_argument('--data_path', default='./FER2013', type=str)
 parser.add_argument('--cartoon_prec', default=0.5, type=float)
 parser.add_argument('--test_mode', default="regular", type=str, help='[regular, cartoon]')
 parser.add_argument('--train_on_united', default="no", type=str, help='[no, yes]')
+parser.add_argument('--optuna', default=False, type=str, help='[no, yes]')
 
 # Define the custom dataset class
 class AugmentedDataset(Dataset):
@@ -231,8 +232,9 @@ def objective(trial):
 
 
 def optuna_main():
-    study = optuna.create_study(direction="maximize")
-    study.optimize(objective, n_trials=100, timeout=30)
+    sampler = optuna.samplers.TPESampler()
+    study = optuna.create_study(study_name="mnist-fc", direction="maximize", sampler=sampler)
+    study.optimize(objective, n_trials=100, timeout=300)
 
     best_trial = study.best_trial
     print("Best trial:")
@@ -243,6 +245,9 @@ def optuna_main():
 
 def main():
     args = parser.parse_args()
+    if args.optuna:
+        optuna_main()
+        return
     start_time = time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime())
     if args.optimizer=="adam":
         save_lr = args.lr_adam
@@ -292,5 +297,4 @@ def main():
     visualization.confusion_matrix(model, test_loader, file_path=f'./results/{folder_name}')
 
 if __name__ == '__main__':
-    # main()
-    optuna_main()
+    main()
