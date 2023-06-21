@@ -46,7 +46,14 @@
 #python train_facial_expression.py --optimizer sgd --cartoon_prec 0.0 --batch_size 128 --train_on_united yes
 
 # chunk 4
-# take best model so far and try less than 10% cartoon
+# take best model so far and try less than 20% cartoon
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.1 --batch_size 32 && \
 python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.05 --batch_size 32 && \
 python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.02 --batch_size 32 && \
-#
+# try xavier weights init
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 32 --weights_init xavier && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.1 --batch_size 32 --weights_init xavier && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.2 --batch_size 32 --weights_init xavier && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.3 --batch_size 32 --weights_init xavier && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 1.0 --test_mode cartoon --weights_init xavier && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.0 --batch_size 32 --train_on_united yes --weights_init xavier
