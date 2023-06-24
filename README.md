@@ -133,6 +133,9 @@ To ensure comprehensive documentation, we organized and recorded all experiment 
 
 #### Example for graph of the train and validation loss:
 ![image](https://github.com/harel147/Cartoonify/assets/63463677/a9ea5bdd-7c3a-4e72-aabe-1d34092661bd)
+#### Example for graph of validation accuracy:
+![image](https://github.com/harel147/Cartoonify/assets/63463677/dd3611de-369f-4e6d-915b-f3083af8b193)
+
 
 #### Example for the confusion matrix:
 ![image](https://github.com/harel147/Cartoonify/assets/63463677/81ce961f-aa5b-43eb-ae38-afebfdd5af7b)
