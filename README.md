@@ -84,7 +84,9 @@ We conducted a total of 39 experiments, and for each experiment, we recorded the
 * The best validation accuracy weights
 * The graph of the train and validation loss
 * The confusion matrix
+  
 To ensure comprehensive documentation, we organized and recorded all experiment details in a table, allowing for easy reference and analysis of the results:
+
 | trail number	|optimizer|	lr	|batch	|cartoon train	|cartoon test	|weights init	|result|	comments|
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 |	1	|	adam	|	0.001	|	64	|	0	|	0	|	imagenet	|	60.77	|		|
@@ -126,12 +128,13 @@ To ensure comprehensive documentation, we organized and recorded all experiment 
 |	37	|	adam	|	0.0001	|	32	|	0.3	|	0	|	xavier	|	56.59	|		|
 |	38	|	adam	|	0.0001	|	32	|	1	|	1	|	xavier	|	48.31	|		|
 |	39	|	adam	|	0.0001	|	32	|	0.5	|	0	|	xavier	|	57.17	|	train on united train set	|
+  <br>
 
 
-Example for graph of the train and validation loss:
+#### Example for graph of the train and validation loss:
 ![image](https://github.com/harel147/Cartoonify/assets/63463677/a9ea5bdd-7c3a-4e72-aabe-1d34092661bd)
 
-Example for the confusion matrix:
+#### Example for the confusion matrix:
 ![image](https://github.com/harel147/Cartoonify/assets/63463677/81ce961f-aa5b-43eb-ae38-afebfdd5af7b)
 
 ### Results Summery
