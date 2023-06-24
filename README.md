@@ -1,4 +1,4 @@
-# 046211 - Cartoonify
+# 046211 - Cartoonify - Cartoon Augmentations for Image Classification
 
 ## Agenda
 * Project overview
@@ -18,7 +18,7 @@ To create cartoon versions of the original dataset, we used [CartoonGAN](https:/
 
 ![image](https://github.com/harel147/Cartoonify/assets/63463677/666d18fc-2b59-4de0-97f8-02273468fb11)
 
-In our study, we chose ResNet18 as our model, which has been utilized in prior research. Previous studie reached an accuracy of 73% with an optimized ResNet18, which closely approaches the highest reported accuracy of 77% found in the literature. 
+In our study, we chose ResNet18 as our model, which has been utilized in prior research. Previous studies reached an accuracy of 73% with an optimized ResNet18, which closely approaches the highest reported accuracy of 77% found in the literature. 
 
 ### Environment Setting
 You can install all necessary packages by running the following command:
@@ -79,72 +79,79 @@ To run augmentations at test time, run with `--test_mode cartoon`.
 To train on a dataset combined of the original train set images + all the augmented train set images, run with `--train_on_united yes`.
 
 
-
-
 ### Models results
-To examine the effect of Contrastive-center loss regularization, we ran the following experiments in addition to the baseline: 
-* Contrastive-center loss regularization with Adagrad optimizer with lr=0.001 and 𝜆=1
-* Contrastive-center loss regularization with Adam optimizer with lr=0.002 and 𝜆=0.55
+We conducted a total of 39 experiments, and for each experiment, we recorded the following data:
+* The best validation accuracy weights
+* The graph of the train and validation loss
+* The confusion matrix
+To ensure comprehensive documentation, we organized and recorded all experiment details in a table, allowing for easy reference and analysis of the results:
+| trail number	|optimizer|	lr	|batch	|cartoon train	|cartoon test	|weights init	|result|	comments|
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+|	1	|	adam	|	0.001	|	64	|	0	|	0	|	imagenet	|	60.77	|		|
+|	2	|	adam	|	0.001	|	64	|	0.2	|	0	|	imagenet	|	60.02	|		|
+|	3	|	adam	|	0.001	|	64	|	0.4	|	0	|	imagenet	|	59.96	|		|
+|	4	|	adam	|	0.001	|	64	|	0.6	|	0	|	imagenet	|	60.55	|		|
+|	5	|	adam	|	0.0001	|	64	|	0	|	0	|	imagenet	|	63.89	|		|
+|	6	|	adam	|	0.0001	|	64	|	0.2	|	0	|	imagenet	|	63.78	|		|
+|	7	|	adam	|	0.0001	|	64	|	0.4	|	0	|	imagenet	|	63.19	|		|
+|	8	|	adam	|	0.0001	|	64	|	0.6	|	0	|	imagenet	|	60.94	|		|
+|	9	|	sgd	|	0.1	|	64	|	0	|	0	|	imagenet	|	58.48	|	add schduler	|
+|	10	|	sgd	|	0.1	|	64	|	0.2	|	0	|	imagenet	|	58.04	|	add schduler	|
+|	11	|	sgd	|	0.1	|	64	|	0.4	|	0	|	imagenet	|	57.62	|	add schduler	|
+|	12	|	sgd	|	0.1	|	64	|	0.6	|	0	|	imagenet	|	58.23	|	add schduler	|
+|	13	|	adam	|	0.0001	|	32	|	0	|	0	|	imagenet	|	64.06	|		|
+|	14	|	adam	|	0.0001	|	128	|	0	|	0	|	imagenet	|	63.5	|		|
+|	15	|	adam	|	0.0001	|	64	|	1	|	1	|	imagenet	|	54.28	|		|
+|	16	|	adam	|	0.0001	|	64	|	0.8	|	1	|	imagenet	|	56.73	|		|
+|	17	|	adam	|	0.0001	|	64	|	0.6	|	1	|	imagenet	|	56.23	|		|
+|	18	|	adam	|	0.0001	|	64	|	0.4	|	1	|	imagenet	|	56.76	|		|
+|	19	|	adam	|	0.0001	|	64	|	0.2	|	1	|	imagenet	|	56.34	|		|
+|	20	|	adam	|	0.0001	|	64	|	0	|	1	|	imagenet	|	31.99	|		|
+|	21	|	sgd	|	0.1	|	32	|	0	|	1	|	imagenet	|	58.93	|	add schduler	|
+|	22	|	sgd	|	0.1	|	128	|	0	|	1	|	imagenet	|	54.92	|	add schduler	|
+|	23	|	sgd	|	0.1	|	32	|	0.2	|	1	|	imagenet	|	60.3	|	add schduler	|
+|	24	|	sgd	|	0.1	|	128	|	0.2	|	1	|	imagenet	|	57.34	|	add schduler	|
+|	25	|	adam	|	0.0001	|	32	|	0.5	|	0	|	imagenet	|	63.05	|	train on united train set	|
+|	26	|	adam	|	0.0001	|	64	|	0.5	|	0	|	imagenet	|	62.55	|	train on united train set	|
+|	27	|	adam	|	0.0001	|	128	|	0.5	|	0	|	imagenet	|	62.64	|	train on united train set	|
+|	28	|	sgd	|	0.1	|	32	|	0.5	|	0	|	imagenet	|	57.73	|	train on united train set	|
+|	29	|	sgd	|	0.1	|	64	|	0.5	|	0	|	imagenet	|	58.68	|	train on united train set	|
+|	30	|	sgd	|	0.1	|	128	|	0.5	|	0	|	imagenet	|	57.82	|	train on united train set	|
+|	31	|	adam	|	0.0001	|	32	|	0.1	|	0	|	imagenet	|	63.42	|		|
+|	32	|	adam	|	0.0001	|	32	|	0.05	|	0	|	imagenet	|	64.36	|		|
+|	33	|	adam	|	0.0001	|	32	|	0.02	|	0	|	imagenet	|	62.75	|		|
+|	34	|	adam	|	0.0001	|	32	|	0	|	0	|	xavier	|	56.9	|		|
+|	35	|	adam	|	0.0001	|	32	|	0.1	|	0	|	xavier	|	56.56	|		|
+|	36	|	adam	|	0.0001	|	32	|	0.2	|	0	|	xavier	|	55.89	|		|
+|	37	|	adam	|	0.0001	|	32	|	0.3	|	0	|	xavier	|	56.59	|		|
+|	38	|	adam	|	0.0001	|	32	|	1	|	1	|	xavier	|	48.31	|		|
+|	39	|	adam	|	0.0001	|	32	|	0.5	|	0	|	xavier	|	57.17	|	train on united train set	|
 
-As seen below, the regularization did not effect the train loss.
-![image](https://user-images.githubusercontent.com/74931703/214831357-8bbc8245-6f6a-432a-8244-9f56d29cb2a4.png)
 
-In addition, in all cases on our validation set, we converge relatively to the same value but in a different pace.
-![image](https://user-images.githubusercontent.com/74931703/214831623-e4685ab0-2fb0-4726-8538-40a76ac8f7fc.png)
+Example for graph of the train and validation loss:
+![image](https://github.com/harel147/Cartoonify/assets/63463677/a9ea5bdd-7c3a-4e72-aabe-1d34092661bd)
 
-Note that the value of the Contrastive-center loss is small from the first iteration - approximal $2\cdot10^(-4)$ as opposed to the Cross-Entropy loss that starts at the value of about 4. Due to the extreme size difference between the CCL regularization and the Cross Entropy loss, the CCL regularization has a minor impact on the train and validation coverage as seen inthe graphs above.
+Example for the confusion matrix:
+![image](https://github.com/harel147/Cartoonify/assets/63463677/81ce961f-aa5b-43eb-ae38-afebfdd5af7b)
 
-| Model | Top-1 (%) | Top-5 (%) |
-| ------------- | ------------- | ------------- |
-| Baseline | **79.09** | 92.78 |
-| Contrastive-center loss with Adagrad | 78.98 | **93.24** |
-| Contrastive-center loss with Adam | 78.52 | 92.82 |
+### Results Summery
+* We observed improved results when using a pre-trained ImageNet model compared to the Xavier initialization method 
+* The Adam optimizer outperformed the SGD optimizer
+* Utilizing the combined dataset, which included both original and augmented data, yielded very similar results to using only the original dataset
+* We noticed a decrease in accuracy when the augmentation percentage exceeded 10%
+* It appeared that the task of facial expression classification became more challenging when using only the augmented dataset
+* Simultaneously using two models with either a sum or max operation on the output scores vector resulted in decreased accuracy compared to the standard single-model approach
 
-As seen in the table above, all 3 experiments obtain similar top-1 accuracy, whereas the Contrastive-center loss experiment with Adagrad optimizer increased the top-5 accuracy by 0.5%, showing that the regularization improved the generalization of the model.
-
-### Prerequisits
-| Library  | Version |
-| ------------- | ------------- |
-| `Python`  | `3.8.16`  |
-| `torch`  | `1.13.0`  |
-| `numpy`  | `1.21.6`  |
-| `torchaudio`  | `0.13.0`  |
-| `torchvision`  | `0.14.0`  |
-| `pandas`  | `1.3.5`  |
-| `librosa`  | `0.8.1`  |
-| `matplotlib`  | `3.2.2`  |
-
-### Running our model
-1. **Download VoxCeleb1 dataset** <br>
-   Run <br>
-   `python arrange_dataset.py [--download] --n_speakers <num_of_speakers> --dataset_dir <path_to_dataset> --checkpoint_dir <path>` 
-
-  | Argument  | Explanation |
-  | ------------- | ------------- |
-  | `n_speakers`  | the number of speakers wanted in the dataset, needs to be <= 1251 |
-  | `download`  | if Added to commandline, then downloading to `dataset_dir` the VoxCeleb1 dataset |
-  | `dataset_dir`  | path to the directory of the dataset |
-  | `resplit`  | if Added to commandline, then re-splitting the dataset to train, validation and loss accordint to `train_size` and `val_size` |
-  | `train_size`  | train's element of the dataset, by default 0.6 |
-  | `val_size`  | validation's element of the dataset, by default 0.2 |
-  
-2. **Train our model** <br>
-  To train our model, run <br>
-  `python train_model.py --ccl_reg --n_speakers <num_of_speakers> --dataset_dir <path_to_dataset> --checkpoint_dir <path>`
-
-  | Argument  | Explanation |
-  | ------------- | ------------- |
-  | `n_speakers`  | the number of speakers in the dataset, needs to be <= 1251 |
-  | `dataset_dir`  | path to the directory of the dataset |
-  | `checkpoint_dir`  | path to save the checkpoints |
-  | `ccl_reg`  | if Added to commandline, then training with contrastive-center loss regularization |
-  | `batch_size`  | train's batch_size, by default 64 |
-  | `n_epochs`  | number of epochs, by default 20 | 
-  <br>
-    Note: There are more arguments, such as Renet's learning rate. To see all of them run: <code>python train_model.py -h</code>
+### Conclusion
+* "Cartoon augmentation" improves model accuracy when used on a small percentage of the training dataset.
+* Extensive use of "cartoon augmentation" in facial expression classification can decrease accuracy due to significant differences between "cartoon faces" and real face images.
+* Exploring "cartoon augmentation" in other classification tasks may yield positive results, as different domains can benefit from the stylized features.
+* Future research should focus on using less aggressive GANs for "cartoon augmentation" to achieve better outcomes.
 
 ### References
 We based our project on the results of the following papers and github repositories:
-<br>[1] S. Bianco, E. Cereda and P. Napoletano, "Discriminative Deep Audio Feature Embedding for Speaker Recognition in the Wild," 2018 IEEE 8th International Conference on Consumer Electronics - Berlin (ICCE-Berlin), Berlin, Germany, 2018, pp. 1-5, doi: 10.1109/ICCE-Berlin.2018.8576237.
-<br>[2] M. Jakubec, E. Lieskovska and R. Jarina, "Speaker Recognition with ResNet and VGG Networks," 2021 31st International Conference Radioelektronika (RADIOELEKTRONIKA), Brno, Czech Republic, 2021, pp. 1-5, doi: 10.1109/RADIOELEKTRONIKA52220.2021.9420202.
-<br>[3] https://github.com/samtwl/Deep-Learning-Contrastive-Center-Loss-Transfer-Learning-Food-Classification-/tree/master
+* [CartoonGAN](https://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_CartoonGAN_Generative_Adversarial_CVPR_2018_paper.pdf): Generative Adversarial Networks for Photo Cartoonization (Yang Chen, et al. 2018) 
+* [Facial Expression Recognition] (https://github.com/mansikataria/FacialExpressionRecognition)
+* [FER2013 - Facial Emotion Recognition] (https://github.com/LetheSec/Fer2013-Facial-Emotion-Recognition-Pytorch/tree/4101684616b1c9bde358fc6a2082e3b9ef121a9c)
+* [GAN Augmentation] (https://arxiv.org/abs/1810.10863) (Christopher Bowles, et al. 2018)
+
