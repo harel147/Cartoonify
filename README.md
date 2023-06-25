@@ -46,14 +46,14 @@ python generate_cartoon_from_folder.py \
 ```
 ### Training & Evaluation
 During the training process, we implemented various augmentation modes:
-* Implemented random augmentation based on a selected percentage
+* Random augmentation based on a selected percentage
 * Trained the models exclusively on augmented data
 * Combined the augmented dataset with the original dataset
 
 During the evaluation process, we implemented various modes:
 * Test on the original test set
-* Evaluated the models solely on the augmented test set
-* Utilized two models simultaneously, exploring techniques such as ensemble methods (sum or max on the output)
+* Evaluate the models solely on the augmented test set
+* Utilize two models simultaneously, exploring techniques such as ensemble methods (sum or max on the output)
 
 You can train the model using `train_facial_expression.py`, choosing different hyperparameters and training modes:
 ```bash
