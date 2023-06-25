@@ -33,7 +33,8 @@ Our study focused on FER2013 dataset:
 * Test set size 3.5k
   
 FER2013 samples Vs augmented version of the same samples:
-![image](https://github.com/harel147/Cartoonify/assets/63463677/5f58555b-d45c-49cb-bde8-fb98b4e06e7d)
+![image](https://github.com/harel147/Cartoonify/assets/63463677/c20943dc-a8b9-45bf-9425-d8c7eab2ed21)
+
 
 You can create a cartoon augmented version of the dataset, by running the following command:
 ```bash
