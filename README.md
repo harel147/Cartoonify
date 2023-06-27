@@ -16,7 +16,8 @@ Our objective is to investigate the efficacy of "cartoon augmentation" using Gen
 
 To create cartoon versions of the original dataset, we used [CartoonGAN](https://openaccess.thecvf.com/content_cvpr_2018/papers/Chen_CartoonGAN_Generative_Adversarial_CVPR_2018_paper.pdf):
 
-![image](https://github.com/harel147/Cartoonify/assets/63463677/666d18fc-2b59-4de0-97f8-02273468fb11)
+![image](https://github.com/harel147/Cartoonify/assets/63463677/5b885b33-cf53-4d14-865f-389d1ccdd960)
+
 
 In our study, we chose ResNet18 as our model, which has been utilized in prior research. Previous studies reached an accuracy of 73% with an optimized ResNet18, which closely approaches the highest reported accuracy of 77% found in the literature. 
 
@@ -33,7 +34,9 @@ Our study focused on FER2013 dataset:
 * Test set size 3.5k
   
 FER2013 samples Vs augmented version of the same samples:
-![image](https://github.com/harel147/Cartoonify/assets/63463677/c20943dc-a8b9-45bf-9425-d8c7eab2ed21)
+
+![image](https://github.com/harel147/Cartoonify/assets/63463677/698fe79c-b786-4c33-bcb1-73f88dde55a5)
+
 
 
 You can create a cartoon augmented version of the dataset, by running the following command:
@@ -144,13 +147,16 @@ To ensure comprehensive documentation, we organized and recorded all experiment 
 
 
 #### Example for graph of the train and validation loss:
-![image](https://github.com/harel147/Cartoonify/assets/63463677/a9ea5bdd-7c3a-4e72-aabe-1d34092661bd)
+![image](https://github.com/harel147/Cartoonify/assets/63463677/7deb00f9-0408-46e1-a236-40e3cef05cef)
+
 #### Example for graph of validation accuracy:
-![image](https://github.com/harel147/Cartoonify/assets/63463677/dd3611de-369f-4e6d-915b-f3083af8b193)
+![image](https://github.com/harel147/Cartoonify/assets/63463677/6028127f-a9f9-428f-8f20-ecf9c53f3944)
+
 
 
 #### Example for the confusion matrix:
-![image](https://github.com/harel147/Cartoonify/assets/63463677/81ce961f-aa5b-43eb-ae38-afebfdd5af7b)
+![image](https://github.com/harel147/Cartoonify/assets/63463677/02165399-6d3c-4a11-8bab-ab8fc7e09023)
+
 
 ### Results Summery
 * We observed improved results when using a pre-trained ImageNet model compared to the Xavier initialization method 
