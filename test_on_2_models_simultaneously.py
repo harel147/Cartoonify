@@ -15,16 +15,7 @@ parser = argparse.ArgumentParser(description='test 2 models')
 parser.add_argument('--test_name', default="best_original_best_cartoon_sum_1", type=str)
 parser.add_argument('--model_checkpoint_original_testset', default="./results/2023_06_18_20_48_52_optimizer_adam_init_lr_0.0001_cartoon_prec_0.0_chunk2/checkpoint_validation_best.pth", type=str)
 parser.add_argument('--model_checkpoint_cartoon_testset', default="./results/2023_06_18_23_32_51_optimizer_adam_init_lr_0.0001_cartoon_prec_0.8_chunk2/checkpoint_validation_best.pth", type=str)
-parser.add_argument('--scheduler', default="reduce", type=str, help='[reduce, cos]')
-parser.add_argument('--lr_sgd', default=0.1, type=float)
-parser.add_argument('--lr_adam', default=0.001, type=float)
-parser.add_argument('--momentum', default=0.9, type=float)
-parser.add_argument('--weight_decay', default=1e-4, type=float)
-parser.add_argument('--data_path', default='./FER2013', type=str)
-parser.add_argument('--cartoon_prec', default=0.5, type=float)
-parser.add_argument('--test_mode', default="regular", type=str, help='[regular, cartoon]')
-parser.add_argument('--train_on_united', default="no", type=str, help='[no, yes]')
-parser.add_argument('--weights_init', default="imagenet", type=str, help='[imagenet, xavier]')
+
 
 def calculate_accuracy(model_original, model_cartoon, dataloader_original, dataloader_cartoon, device):
     model_original.eval()  # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
