@@ -89,6 +89,7 @@ python test_on_2_models_simultaneously.py \
     --model_checkpoint_original_testset {path for the first model checkpoints}
     --model_checkpoint_cartoon_testset {path for the second model checkpoints}
 ```
+The results will be automatically saved to `./results_2_models/<test_name>/`
 
 ### Models results
 We conducted a total of 39 experiments, and for each experiment, we recorded the following data:
