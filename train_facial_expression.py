@@ -31,6 +31,10 @@ parser.add_argument('--weights_init', default="imagenet", type=str, help='[image
 
 # Define the custom dataset class
 class AugmentedDataset(Dataset):
+    """
+    Define the custom dataset class
+    augment_prec: desired percentage for cartoon augmentation
+    """
     def __init__(self, original_folder, augmented_folder, transform=None, augment_prec=0.0):
         super(AugmentedDataset, self).__init__()
         self.original_dataset = datasets.ImageFolder(original_folder, transform=transform)
@@ -56,7 +60,10 @@ class AugmentedDataset(Dataset):
         return self.original_dataset.classes
 
 
-def evalute(model, loader, criterion):
+def evaluate(model, loader, criterion):
+    """
+    evaluate model performance, usually on validation set
+    """
     # Evaluation
     model.eval()
     correct = 0
@@ -81,7 +88,9 @@ def evalute(model, loader, criterion):
 
 
 def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader, val_loader, folder_name):
-    # Training loop
+    """
+    Train the model
+    """
     train_loss_list = []
     val_loss_list = []
     best_val = np.inf
@@ -104,7 +113,7 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
 
         train_loss_list.append(running_loss / len(train_loader))
 
-        val_acc, val_loss = evalute(model, val_loader, criterion)
+        val_acc, val_loss = evaluate(model, val_loader, criterion)
         val_loss_list.append(val_loss)
 
         if args.optimizer == 'sgd':
@@ -113,6 +122,7 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
             elif args.scheduler == 'reduce':
                 scheduler.step(val_acc)
 
+        # save the best model on validation set
         if val_loss < best_val:
             best_val = val_loss
             # Save the checkpoint to a file
@@ -150,6 +160,9 @@ def train(args, model, optimizer, scheduler, criterion, num_epochs, train_loader
 
 
 def prep_data(path, cartoon_prec=0.5, test_mode="regular", batch_size=64, train_on_united="no"):
+    """
+    prepare the data, return data loaders of desired dataset
+    """
     # Define data transformations
     transform = transforms.Compose([
         #transforms.Resize((224, 224)),
@@ -194,6 +207,7 @@ def main():
     folder_name = f'{start_time}_optimizer_{args.optimizer}_init_lr_{save_lr}_cartoon_prec_{args.cartoon_prec}'
     os.mkdir(f"./results/{folder_name}")
 
+    # prepare the data, get data loaders of desired dataset
     train_loader, val_loader, test_loader, num_classes = prep_data(args.data_path, args.cartoon_prec, args.test_mode,
                                                                    args.batch_size, args.train_on_united)
 
@@ -226,19 +240,22 @@ def main():
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 optimizer, mode='max', factor=0.75, patience=5, verbose=True)
 
+    # train the model
     train_loss_list, val_loss_list, model = train(args, model, optimizer, scheduler, criterion, args.epochs, train_loader, val_loader, folder_name)
 
+    # dump train data to a pickle for later analysis
     data = {'Train loss': train_loss_list, 'Val loss': val_loss_list}
     with open(f'./results/{folder_name}/loss.pickle', 'wb') as file:
         # Dump the data into the pickle file
         pickle.dump(data, file)
 
+    # visualize training results
     visualization.loss_graph(f'./results/{folder_name}')
+    visualization.confusion_matrix(model, test_loader, file_path=f'./results/{folder_name}')
 
     # Evaluation
     # test_acc, test_loss = evaluate(model, test_loader, criterion)
     # print(f"Test Accuracy: {test_acc:.4f}")
-    visualization.confusion_matrix(model, test_loader, file_path=f'./results/{folder_name}')
 
 if __name__ == '__main__':
     main()

@@ -5,7 +5,6 @@ import numpy as np
 import torch.nn as nn
 from torchvision import models
 import train_facial_expression
-from PIL import Image
 import torch.nn.functional as F
 import os
 
@@ -18,6 +17,9 @@ parser.add_argument('--model_checkpoint_cartoon_testset', default="./results/202
 
 
 def calculate_accuracy(model_original, model_cartoon, dataloader_original, dataloader_cartoon, device):
+    """
+    calculate combined accuracy of using two models, usually on test set
+    """
     model_original.eval()  # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
     model_cartoon.eval()  # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
     total_correct = 0
@@ -47,6 +49,9 @@ def calculate_accuracy(model_original, model_cartoon, dataloader_original, datal
 
 def confusion_matrix(model_original, model_cartoon, test_loader_original, test_loader_cartoon, output_path,
                      checkpoint_orginal=None, checkpoint_cartoon=None):
+    """
+    plot and save model confusion matrix, usually on test set
+    """
     if checkpoint_orginal is not None:
         model_original = model_original.to(device)
         state = torch.load(checkpoint_orginal, map_location=device)
@@ -77,10 +82,6 @@ def confusion_matrix(model_original, model_cartoon, test_loader_original, test_l
     #plt.show(block=False)
     plt.savefig(f'{output_path}/confusion matrix.png')
 
-
-def img_shape():
-    image = Image.open('./FER2013/test/angry/PrivateTest_88305.jpg')
-    print(image.size)
 
 def main():
     args = parser.parse_args()

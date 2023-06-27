@@ -3,13 +3,15 @@ import pickle
 import torch
 import numpy as np
 import torch.nn as nn
-from torchvision import datasets, models, transforms
+from torchvision import models
 import train_facial_expression
-from PIL import Image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def loss_graph(file_path):
+    """
+    plot and save loss graph of training
+    """
     with open(f'{file_path}/loss.pickle', 'rb') as file:
         # Load the data from the pickle file
         data = pickle.load(file)
@@ -25,6 +27,9 @@ def loss_graph(file_path):
 
 
 def calculate_accuracy(model, dataloader, device):
+    """
+    calculate model accuracy, usually on test set
+    """
     model.eval() # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
     total_correct = 0
     total_images = 0
@@ -45,6 +50,9 @@ def calculate_accuracy(model, dataloader, device):
     return model_accuracy, confusion_matrix
 
 def confusion_matrix(model, test_loader, file_path, checkpoint=None):
+    """
+    plot and save model confusion matrix, usually on test set
+    """
     if checkpoint is not None:
         model = model.to(device)
         state = torch.load(checkpoint, map_location=device)
@@ -71,10 +79,6 @@ def confusion_matrix(model, test_loader, file_path, checkpoint=None):
     plt.show(block=False)
     plt.savefig(f'{file_path}/confusion matrix.png')
 
-
-def img_shape():
-    image = Image.open('./FER2013/test/angry/PrivateTest_88305.jpg')
-    print(image.size)
 
 if __name__ == '__main__':
     dir = '2023_06_17_17_49_06_optimizer_adam_init_lr_0.0001_cartoon_prec_0.5'
