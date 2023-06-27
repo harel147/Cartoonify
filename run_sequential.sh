@@ -47,7 +47,7 @@
 
 # chunk 4
 # take best model so far and try less than 20% cartoon
-#python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.1 --batch_size 32 && \
+python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.1 --batch_size 32 && \
 python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.05 --batch_size 32 && \
 python train_facial_expression.py --lr_adam 0.0001 --cartoon_prec 0.02 --batch_size 32 && \
 # try xavier weights init

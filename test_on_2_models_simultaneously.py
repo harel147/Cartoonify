@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
-import pickle
+import argparse
 import torch
 import numpy as np
 import torch.nn as nn
-from torchvision import datasets, models, transforms
+from torchvision import models
 import train_facial_expression
 from PIL import Image
 import torch.nn.functional as F
@@ -11,9 +11,23 @@ import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+parser = argparse.ArgumentParser(description='test 2 models')
+parser.add_argument('--test_name', default="best_original_best_cartoon_sum_1", type=str)
+parser.add_argument('--model_checkpoint_original_testset', default="./results/2023_06_18_20_48_52_optimizer_adam_init_lr_0.0001_cartoon_prec_0.0_chunk2/checkpoint_validation_best.pth", type=str)
+parser.add_argument('--model_checkpoint_cartoon_testset', default="./results/2023_06_18_23_32_51_optimizer_adam_init_lr_0.0001_cartoon_prec_0.8_chunk2/checkpoint_validation_best.pth", type=str)
+parser.add_argument('--scheduler', default="reduce", type=str, help='[reduce, cos]')
+parser.add_argument('--lr_sgd', default=0.1, type=float)
+parser.add_argument('--lr_adam', default=0.001, type=float)
+parser.add_argument('--momentum', default=0.9, type=float)
+parser.add_argument('--weight_decay', default=1e-4, type=float)
+parser.add_argument('--data_path', default='./FER2013', type=str)
+parser.add_argument('--cartoon_prec', default=0.5, type=float)
+parser.add_argument('--test_mode', default="regular", type=str, help='[regular, cartoon]')
+parser.add_argument('--train_on_united', default="no", type=str, help='[no, yes]')
+parser.add_argument('--weights_init', default="imagenet", type=str, help='[imagenet, xavier]')
 
 def calculate_accuracy(model_original, model_cartoon, dataloader_original, dataloader_cartoon, device):
-    model_original.eval() # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
+    model_original.eval()  # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
     model_cartoon.eval()  # put in evaluation mode,  turn of DropOut, BatchNorm uses learned statistics
     total_correct = 0
     total_images = 0
@@ -77,12 +91,10 @@ def img_shape():
     image = Image.open('./FER2013/test/angry/PrivateTest_88305.jpg')
     print(image.size)
 
-if __name__ == '__main__':
-    test_name = 'best_original_best_cartoon_sum_11'
-    output_path = f'results_2_models/{test_name}'
+def main():
+    args = parser.parse_args()
+    output_path = f'results_2_models/{args.test_name}'
     os.mkdir(output_path)
-    checkpoint_orginal = f'./results/2023_06_18_20_48_52_optimizer_adam_init_lr_0.0001_cartoon_prec_0.0_chunk2/checkpoint_validation_best.pth'
-    checkpoint_cartoon = f'./results/2023_06_18_23_32_51_optimizer_adam_init_lr_0.0001_cartoon_prec_0.8_chunk2/checkpoint_validation_best.pth'
     path = "./FER2013"
     _, _, test_loader_original, num_classes = train_facial_expression.prep_data(path, test_mode="regular")
     _, _, test_loader_cartoon, num_classes = train_facial_expression.prep_data(path, test_mode="cartoon")
@@ -91,4 +103,7 @@ if __name__ == '__main__':
     model_original.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
     model_cartoon.fc = nn.Linear(512, num_classes)  # Adjust the last fully connected layer for the correct number of classes
     confusion_matrix(model_original, model_cartoon, test_loader_original, test_loader_cartoon, output_path=output_path,
-                     checkpoint_orginal=checkpoint_orginal, checkpoint_cartoon=checkpoint_cartoon)
+                     checkpoint_orginal=args.model_checkpoint_original_testset, checkpoint_cartoon=args.model_checkpoint_cartoon_testset)
+
+if __name__ == '__main__':
+    main()
