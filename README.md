@@ -79,6 +79,16 @@ To run augmentations at test time, run with `--test_mode cartoon`.
 
 To train on a dataset combined of the original train set images + all the augmented train set images, run with `--train_on_united yes`.
 
+After training, full evaluation of the model will be automatically be saved to `./results/<train_folder>/`
+
+##### Evaluation with two models
+For utilizing two models simultaneously at evaluation time, one for the original test set and the second for the cartoon test set, use `test_on_2_models_simultaneously.py`:
+```
+python test_on_2_models_simultaneously.py \
+    --test_name {name for the experiment}
+    --model_checkpoint_original_testset {path for the first model checkpoints}
+    --model_checkpoint_cartoon_testset {path for the second model checkpoints}
+```
 
 ### Models results
 We conducted a total of 39 experiments, and for each experiment, we recorded the following data:
