@@ -79,7 +79,7 @@ To run augmentations at test time, run with `--test_mode cartoon`.
 
 To train on a dataset combined of the original train set images + all the augmented train set images, run with `--train_on_united yes`.
 
-After training, full evaluation of the model will be automatically be saved to `./results/<train_folder>/`
+After training, the complete evaluation of the model will be automatically saved to `./results/<train_folder>/`
 
 ##### Evaluation with two models
 For utilizing two models simultaneously at evaluation time, one for the original test set and the second for the cartoon test set, use `test_on_2_models_simultaneously.py`:
